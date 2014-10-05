@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/static/modules/gviz/1.0/core/tooltip.css">
+    <style>
+        html, body {
+          margin: 0;
+          padding: 0;
+          height: 100%;
+          overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+<div id="chart"></div>
+<script src="lib/csv2json.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="//www.google.com/jsapi"></script>
+<script>
+$(function() {
+
+    var chartElem = document.getElementById('chart');
+
+    google.load('visualization', '1', {packages: ['corechart'], callback: function() {
+
+        csv2json.csv('country_timeseries.csv')
+        .row(function(row) {
+            return [
+                new Date((new Date(2014, 2, 22)).getTime() + parseInt(row.Day, 10)*24*60*60*1000),
+                parseInt(row.Deaths_Liberia, 10),
+                parseInt(row.Deaths_Guinea, 10),
+                parseInt(row.Deaths_SierraLeone, 10),
+                parseInt(row.Deaths_Nigeria, 10),
+                parseInt(row.Deaths_Senegal, 10)
+            ];
+        })
+        .get(function (error, rows) {
+            var data = new google.visualization.DataTable();
+            data.addColumn('date', 'Day');
+            data.addColumn('number', 'Liberia');
+            data.addColumn('number', 'Guinea');
+            data.addColumn('number', 'Sierra Leone');
+            data.addColumn('number', 'Nigeria');
+            data.addColumn('number', 'Senegal');
+            data.addRows(rows);
+
+            var chartOptions = {
+                'backgroundColor': 'transparent',
+                'chartArea': {
+                    'top': 10,
+                    'left': 60
+                },
+                'interpolateNulls': true
+            };
+
+            var chart = new google.visualization.ChartWrapper({
+                chartType: 'LineChart',
+                containerId: 'chart',
+                dataTable: data
+            });
+            chart.setOptions(chartOptions);
+
+            var draw = function() {
+                chartElem.style.height = '' + window.innerHeight + 'px';
+                chartOptions.chartArea.width = window.innerWidth - 65;
+                chartOptions.chartArea.height = window.innerHeight - 40;
+                chart.draw();
+            };
+            var lazyDraw = _.debounce(draw, 50);
+
+            draw();
+            $(window).resize(lazyDraw);
+        });
+    }});
+}());
+</script>
+
+</body>
+</html>

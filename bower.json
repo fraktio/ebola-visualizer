@@ -1,0 +1,9 @@
+{
+  "name": "ebola-visualizer",
+  "version": "0.0.0",
+  "homepage": "https://github.com/fraktio/ebola-visualizer",
+  "license": "MIT",
+  "dependencies": {
+    "csv2json": "~0.0.4"
+  }
+}
